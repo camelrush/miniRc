@@ -1,0 +1,37 @@
+{% load static %}
+<html>
+
+<head>
+    <meta charset='UTF-8' />
+    <link rel="stylesheet" href={% static 'css/styles.css' %} />
+    <link rel="stylesheet" href={% static 'css/jquery-ui.min.css' %} />
+    <link rel="shorcut icon" href={% static 'img/c_m.ico' %} />
+    <script src={% static 'js/jquery-3.4.1.min.js' %}></script>
+    <script src={% static 'js/jquery-ui.min.js' %}></script>
+    <script src={% static 'js/index.js' %}></script>
+</head>
+
+<body>
+    <div class="content-area" id="controller">
+        <div class="control-box" id="slider-wrap-horizon">
+            <p>horizon</p>
+            <div class="control-box-inner control-box-inner-horizon" id="slider-wrap-virtical">
+                <div id="slider-bar-horizon" class="slider-bar"></div>
+            </div>
+            <div class="slider-value-box" id="slider-value-box-hoizon">
+                <span class="slider-value" id="slider-value-horizon">0</span>
+            </div>
+        </div>
+        <div class="control-box" id="slider-wrap-virtical">
+            <p>virtical</p>
+            <div class="control-box-inner control-box-inner-virtical" id="slider-wrap-virtical">
+                <div id="slider-bar-virtical" class="slider-bar"></div>
+            </div>
+            <div class="slider-value-box" id="slider-value-box-virtical">
+                <span class="slider-value" id="slider-value-virtical">0</span>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

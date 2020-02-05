@@ -1,0 +1,50 @@
+body {
+    width: 500px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.control-box {
+    float: left;
+    padding: 10px;
+    text-align: center;
+}
+
+.control-box-inner {
+    width: 150px;
+    border-style: outset;
+    border-radius: 10px;
+    background-color: #1bff002b;
+}
+
+.control-box-inner-virtical {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.control-box-inner-horizon {
+    padding-top: 53px;
+    padding-bottom: 53px;
+}
+
+#slider-bar-virtical {
+    height: 100px;
+    margin: auto;
+}
+
+#slider-bar-horizon {
+    width: 100px;
+    margin: auto;
+}
+
+.slider-value-box {
+    height: 25px;
+    width: 100px;
+    background-color: bisque;
+    margin-top: 5px;
+    margin-right: auto;
+    margin-left: auto;
+    border-radius: 10px;
+    border-style: solid;
+    border-width: thin;
+}
