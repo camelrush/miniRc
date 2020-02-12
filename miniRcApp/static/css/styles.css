@@ -1,5 +1,5 @@
 body {
-    width: 500px;
+    width: 400px;
     margin-right: auto;
     margin-left: auto;
 }
@@ -18,23 +18,46 @@ body {
 }
 
 .control-box-inner-virtical {
-    padding-top: 10px;
-    padding-bottom: 10px;
+    padding-top: 15px;
+    padding-bottom: 15px;
 }
 
 .control-box-inner-horizon {
-    padding-top: 53px;
-    padding-bottom: 53px;
+    padding-top: 59px;
+    padding-bottom: 59px;
 }
 
 #slider-bar-virtical {
     height: 100px;
-    margin: auto;
+    margin-left: 65px;
+    float: left;
 }
 
 #slider-bar-horizon {
     width: 100px;
     margin: auto;
+}
+
+.slider-arrow {
+    background-color: burlywood;
+    color: red;
+    text-align: center;
+}
+
+.slider-arrow-horizon {
+    float: left;
+    margin-left: 30px;
+    margin-top: 10px;
+    border-radius: 7px;
+}
+
+.slider-arrow-virtical {
+    margin: 13px;
+    border-radius: 5px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 5px;
+    padding-right: 5px;
 }
 
 .slider-value-box {
