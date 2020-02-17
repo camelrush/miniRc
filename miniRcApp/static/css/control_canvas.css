@@ -1,0 +1,17 @@
+body {
+    margin: 0px;
+    padding: 0px;
+}
+
+.controller {
+    padding: 10px;
+    float: left;
+    margin: 0 auto;
+}
+
+.control-canvas {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+    background: gray;
+}

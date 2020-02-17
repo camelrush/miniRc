@@ -1,0 +1,7 @@
+POST http://192.168.3.24:3000/control/ HTTP/1.1
+content-type: application/json
+
+{
+    "virtical": 10,
+    "horizon": 10
+}

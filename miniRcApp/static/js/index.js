@@ -4,11 +4,11 @@ $(document).ready(function() {
         orientation: 'vertical',
         animate: 'slow',
         value: 0,
-        min: -5,
-        max: 5,
-        step: 1,
+        min: -250,
+        max: 250,
+        step: 25,
         range: "min",
-        change: function(event, ui) {
+        slide: function(event, ui) {
             $("#slider-value-virtical").html(ui.value);
             control_send();
         }
@@ -18,11 +18,11 @@ $(document).ready(function() {
         orientation: 'horizon',
         animate: 'slow',
         value: 0,
-        min: -5,
-        max: 5,
-        step: 1,
+        min: -45,
+        max: 45,
+        step: 5,
         range: "min",
-        change: function(event, ui) {
+        slide: function(event, ui) {
             $("#slider-value-horizon").html(ui.value);
             control_send();
         }
@@ -30,22 +30,22 @@ $(document).ready(function() {
 
     $("#slider-arrow-up").click(function() {
         var val = $("#slider-bar-virtical").slider("value");
-        $("#slider-bar-virtical").slider("value", val + 1);
+        $("#slider-bar-virtical").slider("value", val + 25);
     });
 
     $("#slider-arrow-down").click(function() {
         var val = $("#slider-bar-virtical").slider("value");
-        $("#slider-bar-virtical").slider("value", val - 1);
+        $("#slider-bar-virtical").slider("value", val - 25);
     });
 
     $("#slider-arrow-left").click(function() {
         var val = $("#slider-bar-horizon").slider("value");
-        $("#slider-bar-horizon").slider("value", val - 1);
+        $("#slider-bar-horizon").slider("value", val - 5);
     });
 
     $("#slider-arrow-right").click(function() {
         var val = $("#slider-bar-horizon").slider("value");
-        $("#slider-bar-horizon").slider("value", val + 1);
+        $("#slider-bar-horizon").slider("value", val + 5);
     });
 
     var control_send = function() {
@@ -61,11 +61,13 @@ $(document).ready(function() {
 
         $.ajax({
             type: "POST",
-            url: "http://192.168.3.24:3000/control/",
+            url: "http://192.168.43.110:3000/control/",
             data: data,
             dataType: "html"
         }).done(function(data, textStatus, jqXHR) {
-            alert(data);
+            // alert(data);
+        }).fail(function(data, textStatus, jqXHR) {
+            // alert(data);
         });
     };
 
