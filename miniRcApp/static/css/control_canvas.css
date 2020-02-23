@@ -1,7 +1,8 @@
 body {
-    width: 400px;
+    width: 340px;
     margin-left: auto;
     margin-right: auto;
+    background: cadetblue;
 }
 
 .controller {
@@ -10,10 +11,19 @@ body {
     margin: 0 auto;
 }
 
+.control-val {
+    padding: 10px;
+    margin: 10px;
+    background: gray;
+    height: 20px;
+    border-radius: 10px;
+    text-align: center;
+}
+
 .control-canvas {
     width: 150px;
     height: 150px;
     margin: 0 auto;
-    background: gray;
+    background: black;
     border-radius: 10px;
 }

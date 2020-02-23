@@ -1,11 +1,15 @@
-const UPDATE_TIME = 50;
+const UPDATE_TIME = 100;
 const BUTTON_RADIUS = 10;
 const HVAL_MAX = 52;
+const HVAL_INTERVAL = 15;
 const VVAL_MAX = 256;
+const VVAL_INTERVAL = 20;
 
 var timer;
 var ctrl_horizon;
 var ctrl_virtical;
+var vval_old = 0;
+var hval_old = 0;
 
 $(document).ready(function() {
 
@@ -57,21 +61,17 @@ $(document).ready(function() {
 
 function updateController() {
 
-    var hval_old = ctrl_horizon.getSendVal(HVAL_MAX);
-    var vval_old = ctrl_virtical.getSendVal(VVAL_MAX);
-
     // Canvasを更新
     ctrl_horizon.updateCanvas();
     ctrl_virtical.updateCanvas();
 
     // 送信値を取得
-    var hval = ctrl_horizon.getSendVal(HVAL_MAX);
-    var vval = ctrl_virtical.getSendVal(VVAL_MAX);
+    var hval = ctrl_horizon.getSendVal(HVAL_MAX, HVAL_INTERVAL);
+    $('#ctrlval-h').text(hval);
+    var vval = ctrl_virtical.getSendVal(VVAL_MAX, VVAL_INTERVAL);
+    $('#ctrlval-v').text(vval);
 
-    console.log('oldh:' + hval_old + ' oldv:' + vval_old + ' h:' + hval + ' v:' + vval);
-
-    if ((ctrl_horizon.getStatus() == 1) || (hval_old != hval) ||
-        (ctrl_virtical.getStatus() == 1) || (vval_old != vval)) {
+    if ((hval_old != hval) || (vval_old != vval)) {
         var data = {
             direction: "left",
             virtical: vval,
@@ -89,6 +89,9 @@ function updateController() {
             //alert(data);
         });
     }
+
+    hval_old = hval;
+    vval_old = vval;
 }
 
 class controller {
@@ -96,6 +99,8 @@ class controller {
     _canvas = null;
     _ctx = null;
     _orientation = null;
+    _centerX = 0;
+    _centerY = 0;
     _posX = 0;
     _posY = 0;
     _onTouch = false;
@@ -110,8 +115,10 @@ class controller {
         this._ctx = canvas.getContext('2d');
 
         // レバーを中央に配置(初期位置)
-        this._posX = canvas.width / 2;
-        this._posY = canvas.height / 2;
+        this._centerX = canvas.width / 2;
+        this._centerY = canvas.height / 2;
+        this._posX = this._centerX;
+        this._posY = this._centerY;
 
         // イベントハンドラ(タッチ開始)
         this._canvas.addEventListener('touchstart', e => {
@@ -161,45 +168,58 @@ class controller {
 
     // 画面更新処理
     updateCanvas() {
-        var cw = this._canvas.width;
-        var ch = this._canvas.height;
 
         // 領域を初期化
-        this._ctx.clearRect(0, 0, cw, ch);
+        this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
 
         // 非操作時には少しずつ中央にカーソルを戻す
         if (!this._onTouch) {
-            if (this._posX != (cw / 2)) {
+            if (this._posX != this._centerX) {
                 // ボタン座標を計算
-                var sub = (((cw / 2) - this._posX) / 2);
+                var sub = ((this._centerX - this._posX) / 2);
                 sub = (sub < 0 ? Math.floor(sub) : Math.ceil(sub));
                 this._posX = this._posX + sub;
             }
-            if (this._posY != (ch / 2)) {
+            if (this._posY != this._centerY) {
                 // ボタン座標を計算
-                var sub = (((ch / 2) - this._posY) / 2);
+                var sub = ((this._centerY - this._posY) / 2);
                 sub = (sub < 0 ? Math.floor(sub) : Math.ceil(sub));
                 this._posY = this._posY + sub;
             }
         }
 
+        // 操作領域を描画
+        this._ctx.beginPath();
+        this._ctx.lineWidth = 10;
+        this._ctx.strokeStyle = 'rgb(80,80,80)';
+        this._ctx.lineCap = 'round';
+        if (this._orientation == 'horizon') {
+            this._ctx.moveTo(BUTTON_RADIUS, this._centerY);
+            this._ctx.lineTo(this._canvas.width - BUTTON_RADIUS, this._centerY);
+        }
+        if (this._orientation == 'virtical') {
+            this._ctx.moveTo(this._centerX, BUTTON_RADIUS);
+            this._ctx.lineTo(this._centerX, this._canvas.height - BUTTON_RADIUS);
+        }
+        this._ctx.stroke();
+
         // ボタン●を描画
         this._ctx.beginPath();
         this._ctx.arc(this._posX, this._posY, BUTTON_RADIUS, 0, Math.PI * 2, false);
+        this._ctx.fillStyle = 'rgb(255,255,255)';
         this._ctx.fill();
     };
 
-    getSendVal(maxVal) {
+    getSendVal(maxVal, interval) {
+        var val;
         if (this._orientation == 'horizon') {
-            return (Math.round((maxVal * 2) * (this._posX / this._canvas.width)) - maxVal);
+            val = (Math.round((maxVal * 2) * (this._posX / this._canvas.width)) - maxVal);
         }
         if (this._orientation == 'virtical') {
-            return (Math.round((maxVal * 2) * (this._posY / this._canvas.height)) - maxVal);
+            val = (Math.round((maxVal * 2) * (this._posY / this._canvas.height)) - maxVal);
+            val = val * -1;
         }
-    };
-
-    onTouch() {
-        return this._onTouch;
+        return val - (val % interval);
     };
 
     getStatus() {
