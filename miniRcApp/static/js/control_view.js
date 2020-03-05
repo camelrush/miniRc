@@ -6,20 +6,16 @@ const VVAL_MAX = 256;
 const VVAL_INTERVAL = 20;
 
 var timer;
-var ctrl_horizon;
-var ctrl_virtical;
-var vval_old = 0;
-var hval_old = 0;
+
+var cv_steering,cv_speed;
+var cv_camangleH,cv_camangleV;
 
 $(document).ready(function() {
 
-    // 水平canvasにレバーを生成
-    var canvas_horizon = $('#cvs-ch')[0];
-    ctrl_horizon = new controller(canvas_horizon, 'horizon');
-
-    // 垂直canvasにレバーを生成
-    var canvas_virtical = $('#cvs-cv')[0];
-    ctrl_virtical = new controller(canvas_virtical, 'virtical');
+    cv_steering = new controller($('#steering-ctrl-cvs')[0], 'horizon');
+    cv_speed = new controller($('#speed-ctrl-cvs')[0], 'virtical');
+    cv_camangleH = new controller($('#camangle-h-ctrl-cvs')[0], 'horizon');
+    cv_camangleV = new controller($('#camangle-v-ctrl-cvs')[0], 'virtical');
 
     timer = setInterval(updateController, UPDATE_TIME);
 
@@ -62,36 +58,35 @@ $(document).ready(function() {
 function updateController() {
 
     // Canvasを更新
-    ctrl_horizon.updateCanvas();
-    ctrl_virtical.updateCanvas();
+    cv_steering.updateCanvas();
+    cv_speed.updateCanvas();
+    cv_camangleH.updateCanvas();
+    cv_camangleV.updateCanvas();
 
     // 送信値を取得
-    var hval = ctrl_horizon.getSendVal(HVAL_MAX, HVAL_INTERVAL);
-    $('#ctrlval-h').text(hval);
-    var vval = ctrl_virtical.getSendVal(VVAL_MAX, VVAL_INTERVAL);
-    $('#ctrlval-v').text(vval);
+    if (cv_steering.updateCanvas()  || 
+        cv_speed.updateCanvas() || 
+        cv_camangleH.updateCanvas() || 
+        cv_camangleV.updateCanvas()) {
 
-    if ((hval_old != hval) || (vval_old != vval)) {
-        var data = {
+            var data = {
             direction: "left",
             virtical: vval,
             horizon: hval
-        };
+            };
 
-        $.ajax({
-            type: "POST",
-            url: "http://192.168.43.110:3000/control/",
-            data: data,
-            dataType: "html"
-        }).done(function(data, textStatus, jqXHR) {
-            //alert(data);
-        }).fail(function(data, textStatus, jqXHR) {
-            //alert(data);
-        });
+            $.ajax({
+                type: "POST",
+                url: "http://192.168.43.110:3000/motor/",
+                data: data,
+                dataType: "html"
+            }).done(function(data, textStatus, jqXHR) {
+                //alert(data);
+            }).fail(function(data, textStatus, jqXHR) {
+                //alert(data);
+            });
+        }
     }
-
-    hval_old = hval;
-    vval_old = vval;
 }
 
 class controller {
@@ -169,6 +164,9 @@ class controller {
     // 画面更新処理
     updateCanvas() {
 
+        old_posX = this._posX
+        old_posY = this._posY
+
         // 領域を初期化
         this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
 
@@ -208,6 +206,9 @@ class controller {
         this._ctx.arc(this._posX, this._posY, BUTTON_RADIUS, 0, Math.PI * 2, false);
         this._ctx.fillStyle = 'rgb(255,255,255)';
         this._ctx.fill();
+
+        // 戻り値(変化有無)を返却
+        return ((this._posX != old_posX) || (this._posY != old_posY))
     };
 
     getSendVal(maxVal, interval) {

@@ -1,0 +1,37 @@
+{% load static %}
+<html>
+
+<head>
+    {% csrf_token %}
+    <meta charset='UTF-8' />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="shorcut icon" href={% static 'img/favicon.ico' %} />
+    <link rel="stylesheet" href={% static 'css/control_view.css' %} />
+    <script src={% static 'js/jquery-3.4.1.min.js' %}></script>
+    <script src={% static 'js/control_view.js' %}></script>
+</head>
+
+<body>
+    <div class="twoway-controller-view" id="move-control">
+        <div class="ctrl-area" id="steering-ctrl-area">
+            <div class="ctrl-val" id="steering-ctrl-val"></div>
+            <canvas class="ctrl-cvs" id="steering-ctrl-cvs" width="150px" height="150px"></canvas>
+        </div>
+        <div class="ctrl-area" id="speed-ctrl-area">
+            <div class="ctrl-val" id="speed-ctrl-val"></div>
+            <canvas class="ctrl-cvs" id="speed-ctrl-cvs" width="150px" height="150px"></canvas>
+        </div>
+    </div>
+    <div class="twoway-controller-view" id="camera-control">
+        <div class="ctrl-area" id="camangle-h-ctrl-area">
+            <div class="ctrl-val" id="camangle-h-ctrl-val"></div>
+            <canvas class="ctrl-cvs" id="camangle-h-ctrl-cvs" width="150px" height="150px"></canvas>
+        </div>
+        <div class="ctrl-area" id="camangle-v-ctrl-area">
+            <div class="ctrl-val" id="camangle-ctrl-val"></div>
+            <canvas class="ctrl-cvs" id="camangle-v-ctrl-cvs" width="150px" height="150px"></canvas>
+        </div>
+    </div>
+</body>
+
+</html>

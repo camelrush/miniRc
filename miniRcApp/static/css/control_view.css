@@ -5,13 +5,13 @@ body {
     background: cadetblue;
 }
 
-.controller {
+.ctrl-area {
     padding: 10px;
     float: left;
     margin: 0 auto;
 }
 
-.control-val {
+.ctrl-val {
     padding: 10px;
     margin: 10px;
     background: gray;
@@ -20,7 +20,7 @@ body {
     text-align: center;
 }
 
-.control-canvas {
+.ctrl-cvs {
     width: 150px;
     height: 150px;
     margin: 0 auto;
