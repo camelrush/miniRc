@@ -11,6 +11,7 @@ GPIO_CTRL_DC_PWM = 21
 GPIO_CAMERA_V_PWM = 16
 GPIO_CAMERA_H_PWM = 20
 
+'''
 ctrl_servo = SG92(GPIO_CTRL_SERVO_PWM)
 ctrl_dc = FA130RA( \
     GPIO_CTRL_DC_OUT1 , \
@@ -18,6 +19,7 @@ ctrl_dc = FA130RA( \
     GPIO_CTRL_DC_PWM)
 camera_servo_h = SG92(GPIO_CAMERA_V_PWM)
 camera_servo_v = SG92(GPIO_CAMERA_H_PWM)
+'''
 
 # Create your views here.
 def control(request):
@@ -30,10 +32,10 @@ def control(request):
     print("steering:" + steering + " speed:" + speed + 
       " / camanle h:" + camangle_h + " camangle v:" + camangle_v)
 
-    ctrl_servo.move(float(steering))
-    ctrl_dc.drive(int(speed))
-    camera_servo_h.move(float(camangle_h))
-    camera_servo_v.move(float(camangle_v))
+    #ctrl_servo.move(float(steering))
+    #ctrl_dc.drive(int(speed))
+    #camera_servo_h.move(float(camangle_h))
+    #camera_servo_v.move(float(camangle_v))
 
     return HttpResponse("")
 

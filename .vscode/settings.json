@@ -1,4 +1,5 @@
 {
     "python.linting.pylintEnabled": true,
-    "python.pythonPath": "/usr/bin/python3"
+    "python.pythonPath": "C:\\Python37\\python.exe",
+    "jshint.options": {"esversion":6}
 }
