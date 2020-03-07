@@ -19,8 +19,8 @@ ctrl_dc = FA130RA( \
     GPIO_CTRL_DC_OUT1 , \
     GPIO_CTRL_DC_OUT2 , \
     GPIO_CTRL_DC_PWM)
-camera_servo_h = SG92(GPIO_CAMERA_V_PWM)
-camera_servo_v = SG92(GPIO_CAMERA_H_PWM)
+camera_servo_h = SG92(GPIO_CAMERA_H_PWM)
+camera_servo_v = SG92(GPIO_CAMERA_V_PWM)
 
 def _gen(camera):
     while True:
@@ -62,7 +62,7 @@ def control(request):
 
     ctrl_servo.move(float(steering))
     ctrl_dc.drive(int(speed))
-    camera_servo_h.move(float(camangle_h))
-    camera_servo_v.move(float(camangle_v))
+    camera_servo_h.move(float(camangle_h) * -1)
+    camera_servo_v.move(float(camangle_v) * -1)
 
     return HttpResponse("")

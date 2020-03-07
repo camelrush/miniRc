@@ -1,8 +1,8 @@
-var API_POST_URL = "http://192.168.3.11:3000/ctrlapi/";
+var API_POST_URL = "http://192.168.3.18:3000/ctrlapi/";
 var MAX_SPEED = 300;
-var MAX_ANGLE = 65;
+var MAX_ANGLE = 30;
 var THRESHOLD_SPEED = 20;
-var THRESHOLD_ANGLE = 15;
+var THRESHOLD_ANGLE = 5;
 var ADJUST_INTERVAL = 100;  // ms
 
 var camangleH_controller;
