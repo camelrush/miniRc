@@ -1,18 +1,36 @@
-var UPDATE_TIME = 100;
-var BUTTON_RADIUS = 10;
-var HVAL_MAX = 65;
-var HVAL_INTERVAL = 15;
-var VVAL_MAX = 300;
-var VVAL_INTERVAL = 20;
 var API_POST_URL = "http://192.168.3.11:3000/ctrlapi/";
+var MAX_SPEED = 300;
+var MAX_ANGLE = 65;
+var THRESHOLD_SPEED = 20;
+var THRESHOLD_ANGLE = 15;
+var ADJUST_INTERVAL = 100;  // ms
 
-var timer;
-var cv_steering;
-var cv_speed;
-var cv_camangleH;
-var cv_camangleV;
+var camangleH_controller;
+var camangleV_controller;
+var steering_controller;
+var speed_controller;
+var adjust_timer;
 
 $(document).ready(function() {
+
+    // カメラ制御(水平)
+    camangleH_controller = new OneWayController($('#camangle-h-ctrl-cvs')[0], $('#camangle-h-ctrl-val') ,change_value ,
+                    {orientation :"horizon" , maxvalue :MAX_ANGLE ,threshold :THRESHOLD_ANGLE});
+
+    // カメラ制御(垂直)
+    camangleV_controller = new OneWayController($('#camangle-v-ctrl-cvs')[0], $('#camangle-v-ctrl-val') ,change_value ,
+                    {orientation :"virtical" ,maxvalue :MAX_ANGLE ,threshold :THRESHOLD_ANGLE});
+
+    // ステアリング制御
+    steering_controller = new OneWayController($('#steering-ctrl-cvs')[0] , $('#steering-ctrl-val'),change_value ,
+                    {orientation :"horizon" ,maxvalue :MAX_ANGLE ,threshold :THRESHOLD_ANGLE});
+
+    // スピード制御
+    speed_controller = new OneWayController($('#speed-ctrl-cvs')[0], $('#speed-ctrl-val') ,change_value ,
+                    {orientation :"virtical" ,maxvalue :MAX_SPEED ,threshold :THRESHOLD_SPEED});
+
+    // 自動調整タイマー設定
+    this._adjust_timer = setInterval(autoAdjust ,ADJUST_INTERVAL);
 
     // ==============================================================
     // Ajax to django by POST functions has probrem.
@@ -52,13 +70,7 @@ $(document).ready(function() {
 
 $(window).on('load',function() {
 
-    cv_camangleH = new controller($('#camangle-h-ctrl-cvs')[0], $('#camangle-h-ctrl-val') , 'horizon',false);
-    cv_camangleV = new controller($('#camangle-v-ctrl-cvs')[0], $('#camangle-v-ctrl-val') , 'virtical',false);
-    cv_steering = new controller($('#steering-ctrl-cvs')[0] , $('#steering-ctrl-val'), 'horizon',true);
-    cv_speed = new controller($('#speed-ctrl-cvs')[0], $('#speed-ctrl-val') ,'virtical',true);
-
-    timer = setInterval(updateController, UPDATE_TIME);
-
+    // カメラ画像領域を追加
     $('#capture-view').append('<iframe id="capture-frame" src="./capture">');
     $('#capture-view').css('width','160px');
     $('#capture-view').css('height','120px');
@@ -68,194 +80,31 @@ $(window).on('load',function() {
     $('#capture-frame').css('height','120px');
     $('#capture-frame').css('border-style','none');
     $('#capture-frame').css('border-radius','10px');
+
 });
 
-function updateController() {
-
-    // 画面更新
-    var chg_cameraH = cv_camangleH.updateView();
-    var chg_cameraV = cv_camangleV.updateView();
-    var chg_steering = cv_steering.updateView();
-    var chg_speed = cv_speed.updateView();
-
-    // 値変化があった場合、APIにリクエストする
-    if (chg_steering || chg_speed || chg_cameraH || chg_cameraV ) {
-
-        var camangleH_val = cv_camangleH.getSendVal(HVAL_MAX,HVAL_INTERVAL);
-        var camangleV_val = cv_camangleV.getSendVal(HVAL_MAX,HVAL_INTERVAL);
-        var steering_val = cv_steering.getSendVal(HVAL_MAX,HVAL_INTERVAL);
-        var speed_val = cv_speed.getSendVal(VVAL_MAX,VVAL_INTERVAL);
-
-        cv_camangleH.updateValue(camangleH_val);
-        cv_camangleV.updateValue(camangleV_val);
-        cv_steering.updateValue(steering_val);
-        cv_speed.updateValue(speed_val);
-
-        var data = {
-            steering: steering_val,
-            speed: speed_val,
-            camangle_h: camangleH_val, 
-            camangle_v: camangleV_val 
-        };
-
-        $.ajax({
-            type: "POST",
-            url: API_POST_URL,
-            data: data,
-            dataType: "html"
-        }).done(function(data, textStatus, jqXHR) {
-            //alert(data);
-        }).fail(function(data, textStatus, jqXHR) {
-            //alert(data);
-        });
-    }
+function autoAdjust(){
+    steering_controller.autoAdjust();
+    speed_controller.autoAdjust();
 }
 
-class controller {
+function change_value(){
 
-    _canvas = null;
-    _val = null;
-    _ctx = null;
-    _orientation = null;
-    _onTouch = false;
-    _centerPos = 0;
-    _curPos = 0;
-    _oldPos = 0;
+    var data = {
+        camangle_h: camangleH_controller.getValue(),
+        camangle_v: camangleV_controller.getValue(),
+        steering: steering_controller.getValue(),
+        speed: speed_controller.getValue()
+    };
 
-    constructor(canvas ,val , orientation ,auto_adjust) {
-
-        // 引数を格納
-        this._canvas = canvas;
-        this._val = val;
-        this._orientation = orientation;
-        this._auto_adjust = auto_adjust;
-
-        // コンテキスト取得
-        this._ctx = canvas.getContext('2d');
-
-        // レバーを中央に配置(初期位置)
-        if (this._orientation == 'horizon'){
-            this._centerPos = canvas.width / 2;
-        } else {
-            this._centerPos = canvas.height / 2;
-        }
-        this._curPos = this._centerPos;
-
-        // イベントハンドラ(タッチ開始)
-        this._canvas.addEventListener('touchstart', e => {
-            this._onTouch = true;
-        });
-
-        // イベントハンドラ(タッチ移動)
-        this._canvas.addEventListener('touchmove', e => {
-
-            var bounds = e.target.getBoundingClientRect();
-            var touch = event.targetTouches[0];
-
-            // スクロール抑止
-            e.preventDefault();
-
-            // タッチ位置にボタン座標を移動
-            // (描画はupdateCanvasで行う)
-            if (this._orientation == 'horizon') {
-                var inputX = Math.floor(touch.clientX - bounds.left);
-                this._curPos = this._calcPos(inputX, 0, this._canvas.width);
-            }
-            if (this._orientation == 'virtical') {
-                var inputY = Math.floor(touch.clientY - bounds.top);
-                this._curPos = this._calcPos(inputY, 0, this._canvas.height);
-            }
-        });
-
-        // イベントハンドラ(タッチ終了)
-        this._canvas.addEventListener('touchend', e => {
-            this._onTouch = false;
-        });
-    }
-
-    // ボタン中心座標計算処理
-    _calcPos(inputPos, minPos, maxPos) {
-        if (inputPos > (maxPos - BUTTON_RADIUS)) {
-            // 入力位置 > 領域上限
-            return (maxPos - BUTTON_RADIUS);
-        } else if (inputPos < BUTTON_RADIUS) {
-            // 入力位置 < 領域下限
-            return BUTTON_RADIUS;
-        } else {
-            // 領域下限 < 入力位置 < 領域上下
-            return inputPos;
-        }
-    }
-
-    // 画面更新処理
-    updateView() {
-
-        // 領域を初期化
-        this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
-
-        // 自動アジャスト 非操作時にはカーソルを中央位置に戻していく
-        if ((this._auto_adjust) && (!this._onTouch)) {
-            if (this._curPos != this._centerPos) {
-                // ボタン座標を計算
-                var sub = ((this._centerPos - this._curPos) / 2);
-                sub = (sub < 0 ? Math.floor(sub) : Math.ceil(sub));
-                this._curPos = this._curPos + sub;
-            }
-        }
-
-        // 操作領域を描画
-        this._ctx.beginPath();
-        this._ctx.lineWidth = 10;
-        this._ctx.strokeStyle = 'rgb(80,80,80)';
-        this._ctx.lineCap = 'round';
-        if (this._orientation == 'horizon') {
-            this._ctx.moveTo(BUTTON_RADIUS, this._centerPos);
-            this._ctx.lineTo(this._canvas.width - BUTTON_RADIUS, this._centerPos);
-        }
-        if (this._orientation == 'virtical') {
-            this._ctx.moveTo(this._centerPos, BUTTON_RADIUS);
-            this._ctx.lineTo(this._centerPos, this._canvas.height - BUTTON_RADIUS);
-        }
-        this._ctx.stroke();
-
-        // ボタン●を描画
-        this._ctx.beginPath();
-        var circleX,circleY = 0;
-        if (this._orientation == 'horizon') {
-            circleX = this._curPos;
-            circleY = this._canvas.height / 2;
-        }
-        if (this._orientation == 'virtical') {
-            circleX = this._canvas.width / 2;
-            circleY = this._curPos;
-        }
-
-        this._ctx.arc(circleX, circleY, BUTTON_RADIUS, 0, Math.PI * 2, false);
-        this._ctx.fillStyle = 'rgb(255,255,255)';
-        this._ctx.fill();
-
-        var change_flg = (this._oldPos != this._curPos);
-        this._oldPos = this._curPos;
-        return change_flg;
-    }
-
-    updateValue(val){
-        this._val.text(val);
-    }
-
-    getSendVal(maxVal, interval) {
-        var val;
-        if (this._orientation == 'horizon') {
-            val = (Math.round((maxVal * 2) * (this._curPos / this._canvas.width)) - maxVal);
-        }
-        if (this._orientation == 'virtical') {
-            val = (Math.round((maxVal * 2) * (this._curPos / this._canvas.height)) - maxVal);
-            val = val * -1;
-        }
-        return val - (val % interval);
-    }
-
-    getStatus() {
-        return (this._onTouch ? 1 : 0);
-    }
+    $.ajax({
+        type: "POST",
+        url: API_POST_URL,
+        data: data,
+        dataType: "html"
+    }).done(function(data, textStatus, jqXHR) {
+        //alert(data);
+    }).fail(function(data, textStatus, jqXHR) {
+        //alert(data);
+    });
 }

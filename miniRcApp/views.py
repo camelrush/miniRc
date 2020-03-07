@@ -14,6 +14,14 @@ GPIO_CTRL_DC_PWM = 21       # ステアリング用サーボ出力
 GPIO_CAMERA_H_PWM = 16      # カメラ用水平サーボ出力
 GPIO_CAMERA_V_PWM = 20      # カメラ用垂直サーボ出力
 
+ctrl_servo = SG92(GPIO_CTRL_SERVO_PWM)
+ctrl_dc = FA130RA( \
+    GPIO_CTRL_DC_OUT1 , \
+    GPIO_CTRL_DC_OUT2 , \
+    GPIO_CTRL_DC_PWM)
+camera_servo_h = SG92(GPIO_CAMERA_V_PWM)
+camera_servo_v = SG92(GPIO_CAMERA_H_PWM)
+
 def _gen(camera):
     while True:
         # カメラ画像1フレーム取得
@@ -52,9 +60,9 @@ def control(request):
     print("steering:" + steering + " speed:" + speed + 
       " / camanle h:" + camangle_h + " camangle v:" + camangle_v)
 
-    #ctrl_servo.move(float(steering))
-    #ctrl_dc.drive(int(speed))
-    #camera_servo_h.move(float(camangle_h))
-    #camera_servo_v.move(float(camangle_v))
+    ctrl_servo.move(float(steering))
+    ctrl_dc.drive(int(speed))
+    camera_servo_h.move(float(camangle_h))
+    camera_servo_v.move(float(camangle_v))
 
     return HttpResponse("")
