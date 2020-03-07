@@ -1,6 +1,6 @@
 body {
-    width: 340px;
-    height: 800px;
+    width: 400px;
+    height: 400px;
     margin-left: auto;
     margin-right: auto;
     background: cadetblue;
@@ -8,13 +8,29 @@ body {
 
 .ctrl-area {
     padding: 10px;
-    float: left;
     margin: 0 auto;
 }
 
+#camangle-h-ctrl-area {
+    float: left;
+}
+
+#camangle-v-ctrl-area {
+    float: left;
+}
+
+#steering-ctrl-area {
+    clear: left;
+    float: left;
+    padding-left :90px;
+}
+
+#speed-ctrl-area {
+    float: left;
+}
+
 .ctrl-val {
-    padding: 10px;
-    margin: 10px;
+    margin: 3px;
     background: gray;
     height: 20px;
     border-radius: 10px;
@@ -22,9 +38,10 @@ body {
 }
 
 .ctrl-cvs {
-    width: 150px;
-    height: 150px;
+    width: 100px;
+    height: 100px;
     margin: 0 auto;
     background: black;
     border-radius: 10px;
 }
+

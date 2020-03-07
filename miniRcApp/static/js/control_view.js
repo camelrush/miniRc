@@ -1,9 +1,10 @@
 var UPDATE_TIME = 100;
 var BUTTON_RADIUS = 10;
-var HVAL_MAX = 52;
+var HVAL_MAX = 65;
 var HVAL_INTERVAL = 15;
-var VVAL_MAX = 256;
+var VVAL_MAX = 300;
 var VVAL_INTERVAL = 20;
+var API_POST_URL = "http://192.168.3.11:3000/ctrlapi/";
 
 var timer;
 var cv_steering;
@@ -12,13 +13,6 @@ var cv_camangleH;
 var cv_camangleV;
 
 $(document).ready(function() {
-
-    cv_steering = new controller($('#steering-ctrl-cvs')[0] , $('#steering-ctrl-val'), 'horizon');
-    cv_speed = new controller($('#speed-ctrl-cvs')[0], $('#speed-ctrl-val') ,'virtical');
-    cv_camangleH = new controller($('#camangle-h-ctrl-cvs')[0], $('#camangle-h-ctrl-val') , 'horizon');
-    cv_camangleV = new controller($('#camangle-v-ctrl-cvs')[0], $('#camangle-v-ctrl-val') , 'virtical');
-
-    timer = setInterval(updateController, UPDATE_TIME);
 
     // ==============================================================
     // Ajax to django by POST functions has probrem.
@@ -56,21 +50,46 @@ $(document).ready(function() {
     });
 });
 
+$(window).on('load',function() {
+
+    cv_camangleH = new controller($('#camangle-h-ctrl-cvs')[0], $('#camangle-h-ctrl-val') , 'horizon',false);
+    cv_camangleV = new controller($('#camangle-v-ctrl-cvs')[0], $('#camangle-v-ctrl-val') , 'virtical',false);
+    cv_steering = new controller($('#steering-ctrl-cvs')[0] , $('#steering-ctrl-val'), 'horizon',true);
+    cv_speed = new controller($('#speed-ctrl-cvs')[0], $('#speed-ctrl-val') ,'virtical',true);
+
+    timer = setInterval(updateController, UPDATE_TIME);
+
+    $('#capture-view').append('<iframe id="capture-frame" src="./capture">');
+    $('#capture-view').css('width','160px');
+    $('#capture-view').css('height','120px');
+    $('#capture-view').css('float','left');
+    $('#capture-view').css('margin-top','15px');
+    $('#capture-frame').css('width','160px');
+    $('#capture-frame').css('height','120px');
+    $('#capture-frame').css('border-style','none');
+    $('#capture-frame').css('border-radius','10px');
+});
+
 function updateController() {
 
     // 画面更新
-    // 値変化があった場合、APIにリクエストする
-    if (cv_steering.updateView() || cv_speed.updateView() || cv_camangleH.updateView() || cv_camangleV.updateView()) {
+    var chg_cameraH = cv_camangleH.updateView();
+    var chg_cameraV = cv_camangleV.updateView();
+    var chg_steering = cv_steering.updateView();
+    var chg_speed = cv_speed.updateView();
 
+    // 値変化があった場合、APIにリクエストする
+    if (chg_steering || chg_speed || chg_cameraH || chg_cameraV ) {
+
+        var camangleH_val = cv_camangleH.getSendVal(HVAL_MAX,HVAL_INTERVAL);
+        var camangleV_val = cv_camangleV.getSendVal(HVAL_MAX,HVAL_INTERVAL);
         var steering_val = cv_steering.getSendVal(HVAL_MAX,HVAL_INTERVAL);
         var speed_val = cv_speed.getSendVal(VVAL_MAX,VVAL_INTERVAL);
-        var camangleH_val = cv_camangleH.getSendVal(HVAL_MAX,HVAL_INTERVAL);
-        var camangleV_val = cv_camangleV.getSendVal(VVAL_MAX,VVAL_INTERVAL);
 
-        cv_steering.updateValue(steering_val);
-        cv_speed.updateValue(speed_val);
         cv_camangleH.updateValue(camangleH_val);
         cv_camangleV.updateValue(camangleV_val);
+        cv_steering.updateValue(steering_val);
+        cv_speed.updateValue(speed_val);
 
         var data = {
             steering: steering_val,
@@ -81,7 +100,7 @@ function updateController() {
 
         $.ajax({
             type: "POST",
-            url: "http://192.168.43.247:3000/ctrlapi/",
+            url: API_POST_URL,
             data: data,
             dataType: "html"
         }).done(function(data, textStatus, jqXHR) {
@@ -103,12 +122,13 @@ class controller {
     _curPos = 0;
     _oldPos = 0;
 
-    constructor(canvas ,val , orientation) {
+    constructor(canvas ,val , orientation ,auto_adjust) {
 
         // 引数を格納
         this._canvas = canvas;
         this._val = val;
         this._orientation = orientation;
+        this._auto_adjust = auto_adjust;
 
         // コンテキスト取得
         this._ctx = canvas.getContext('2d');
@@ -173,8 +193,8 @@ class controller {
         // 領域を初期化
         this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
 
-        // 非操作時にはカーソルを中央位置に戻していく
-        if (!this._onTouch) {
+        // 自動アジャスト 非操作時にはカーソルを中央位置に戻していく
+        if ((this._auto_adjust) && (!this._onTouch)) {
             if (this._curPos != this._centerPos) {
                 // ボタン座標を計算
                 var sub = ((this._centerPos - this._curPos) / 2);
