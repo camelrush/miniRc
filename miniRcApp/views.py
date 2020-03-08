@@ -11,8 +11,8 @@ GPIO_CTRL_SERVO_PWM = 18    # DCモータPWM出力
 GPIO_CTRL_DC_OUT1 = 23      # DCモータ出力1
 GPIO_CTRL_DC_OUT2 = 24      # DCモータ出力2
 GPIO_CTRL_DC_PWM = 21       # ステアリング用サーボ出力
-GPIO_CAMERA_H_PWM = 16      # カメラ用水平サーボ出力
-GPIO_CAMERA_V_PWM = 20      # カメラ用垂直サーボ出力
+GPIO_CAMERA_H_PWM = 2       # カメラ用水平サーボ出力
+GPIO_CAMERA_V_PWM = 3       # カメラ用垂直サーボ出力
 
 ctrl_servo = SG92(GPIO_CTRL_SERVO_PWM)
 ctrl_dc = FA130RA( \

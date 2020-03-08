@@ -1,9 +1,5 @@
-var API_POST_URL = "http://192.168.3.18:3000/ctrlapi/";
-var MAX_SPEED = 300;
-var MAX_ANGLE = 30;
-var THRESHOLD_SPEED = 20;
-var THRESHOLD_ANGLE = 5;
-var ADJUST_INTERVAL = 100;  // ms
+var API_POST_URL = "http://192.168.3.11:3000/ctrlapi/";
+var ADJUST_INTERVAL = 50;  // ms
 
 var camangleH_controller;
 var camangleV_controller;
@@ -15,19 +11,19 @@ $(document).ready(function() {
 
     // カメラ制御(水平)
     camangleH_controller = new OneWayController($('#camangle-h-ctrl-cvs')[0], $('#camangle-h-ctrl-val') ,change_value ,
-                    {orientation :"horizon" , maxvalue :MAX_ANGLE ,threshold :THRESHOLD_ANGLE});
+                    {orientation :"horizon" , maxvalue :20 ,threshold :2});
 
     // カメラ制御(垂直)
     camangleV_controller = new OneWayController($('#camangle-v-ctrl-cvs')[0], $('#camangle-v-ctrl-val') ,change_value ,
-                    {orientation :"virtical" ,maxvalue :MAX_ANGLE ,threshold :THRESHOLD_ANGLE});
+                    {orientation :"virtical" ,maxvalue :20 ,threshold :2});
 
     // ステアリング制御
     steering_controller = new OneWayController($('#steering-ctrl-cvs')[0] , $('#steering-ctrl-val'),change_value ,
-                    {orientation :"horizon" ,maxvalue :MAX_ANGLE ,threshold :THRESHOLD_ANGLE});
+                    {orientation :"horizon" ,maxvalue :10 ,threshold :1});
 
     // スピード制御
     speed_controller = new OneWayController($('#speed-ctrl-cvs')[0], $('#speed-ctrl-val') ,change_value ,
-                    {orientation :"virtical" ,maxvalue :MAX_SPEED ,threshold :THRESHOLD_SPEED});
+                    {orientation :"virtical" ,maxvalue :255 ,threshold :15});
 
     // 自動調整タイマー設定
     this._adjust_timer = setInterval(autoAdjust ,ADJUST_INTERVAL);
@@ -75,7 +71,7 @@ $(window).on('load',function() {
     $('#capture-view').css('width','160px');
     $('#capture-view').css('height','120px');
     $('#capture-view').css('float','left');
-    $('#capture-view').css('margin-top','15px');
+    $('#capture-view').css('margin-top','40px');
     $('#capture-frame').css('width','160px');
     $('#capture-frame').css('height','120px');
     $('#capture-frame').css('border-style','none');

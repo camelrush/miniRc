@@ -29,12 +29,23 @@ body {
     float: left;
 }
 
-.ctrl-val {
+.ctrl-title {
     margin: 3px;
-    background: gray;
+    background: darkblue;
+    color: white;
     height: 20px;
     border-radius: 10px;
     text-align: center;
+    font-size: 12px;
+}
+
+.ctrl-val {
+    margin: 3px;
+    background: white;
+    height: 20px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 12px;
 }
 
 .ctrl-cvs {
@@ -44,4 +55,3 @@ body {
     background: black;
     border-radius: 10px;
 }
-

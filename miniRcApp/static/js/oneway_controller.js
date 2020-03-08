@@ -144,14 +144,19 @@ class OneWayController{
     _calcValue(pos){
 
         var value = 0;
+        var lever_pos = pos - LEVER_RADIUS;
+        var lever_pitch = (this._orientation == 'horizon' ? this._canvas.width : this._canvas.height) - (LEVER_RADIUS * 2); 
 
         // 制御値を取得
-        if (this._orientation == 'horizon') {
-            value = (Math.round((this._maxvalue * 2) * (pos / this._canvas.width)) - this._maxvalue);
-        }
-        if (this._orientation == 'virtical') {
-            value = (Math.round((this._maxvalue * 2) * (pos / this._canvas.height)) - this._maxvalue) * -1;
-        }
+        //if (this._orientation == 'horizon') {
+        //    value = (Math.round((this._maxvalue * 2) * (pos / this._canvas.width)) - this._maxvalue);
+        //}
+        //if (this._orientation == 'virtical') {
+        //    value = (Math.round((this._maxvalue * 2) * (pos / this._canvas.height)) - this._maxvalue) * -1;
+        //}
+
+        value = (Math.round((this._maxvalue * 2) * (lever_pos / lever_pitch)) - this._maxvalue) * -1;
+
         // 制御値は閾単位で切り捨て
         value = value - (value % this._threshold);
 
