@@ -11,6 +11,12 @@
  - 底面
    ![底面](document/img/底.jpg)
   
+ - ユーザインターフェイス
+   ![底面](document/img/UI.gif)
+  
+ - カメラパン
+   ![底面](document/img/カメラパン.gif)
+  
  - 動作結果
    ![動作](document/img/dc.gif)
 
@@ -21,17 +27,23 @@
 
 ## 必要環境
  - ソフトウェア
- - raspberry pi zero WH
- - [タミヤ「バギー工作基本セット」](https://www.tamiya.com/japan/products/70112/index.html)※←直進しかしません
- - モバイルバッテリー(raspberry pi 駆動用)
- - 単三電池×2本(DCモータ 駆動用)
- - ミニブレッドボード
- - python 3.x(当方 3.7.3)
-   - django
-   - pigpio (GPIO制御)
+   - python 3.x(当方 3.7.3)
+     - django
+     - pigpio (GPIO制御)
+     - opencv（顔画像認識）
+ - ハードウェア
+   - raspberry pi zero WH
+   - [タミヤ「バギー工作基本セット」](https://www.tamiya.com/japan/products/70112/index.html)※←本来、直進しかしない
+   - モバイルバッテリー(raspberry pi用)
+   - 9V型乾電池×1本(各種モータ駆動用)
+   - ミニブレッドボード
+   - モータ制御ドライバ(TA7291P)
+   - 三端子5V1Aレギュレータ(NJM7805FA)
+   - ステアリング制御サーボモータ(SG92)
+   - カメラパン制御サーボモータ(SG90×2)
 
 ## 配線
-（あとでアップします）
+   ![配線図](document/img/配線図.png)
 
 ## 身についた知識
  - ソフトウェア
