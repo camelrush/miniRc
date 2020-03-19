@@ -7,10 +7,10 @@ from .devices.motor import DcMotorFA130RA as FA130RA
 from .devices.camera import VideoCamera as cam
 
 # GPIO.PIN定義
-GPIO_CTRL_SERVO_PWM = 18    # DCモータPWM出力
+GPIO_CTRL_DC_PWM = 21       # DCモータPWM出力
 GPIO_CTRL_DC_OUT1 = 23      # DCモータ出力1
 GPIO_CTRL_DC_OUT2 = 24      # DCモータ出力2
-GPIO_CTRL_DC_PWM = 21       # ステアリング用サーボ出力
+GPIO_CTRL_SERVO_PWM = 18    # ステアリング用サーボ出力
 GPIO_CAMERA_H_PWM = 2       # カメラ用水平サーボ出力
 GPIO_CAMERA_V_PWM = 3       # カメラ用垂直サーボ出力
 
@@ -60,7 +60,7 @@ def control(request):
     print("steering:" + steering + " speed:" + speed + 
       " / camanle h:" + camangle_h + " camangle v:" + camangle_v)
 
-    ctrl_servo.move(float(steering))
+    ctrl_servo.move(float(steering) - 8)
     ctrl_dc.drive(int(speed))
     camera_servo_h.move(float(camangle_h) * -1)
     camera_servo_v.move(float(camangle_v) * -1)
